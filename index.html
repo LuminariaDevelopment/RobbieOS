@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RobbieOS</title>
+    <meta
+      name="description"
+      content="RobbieOS: A beautiful, modern web-based operating system built with web technologies."
+    />
+    <meta name="author" content="Robbie" />
+    <meta property="og:title" content="RobbieOS" />
+    <meta
+      property="og:description"
+      content="A beautiful webOS built with HTML, CSS, and JS."
+    />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="style.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <script defer src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script
+      defer
+      src="https://cdnjs.cloudflare.com/ajax/libs/jsmediatags/3.9.5/jsmediatags.min.js"
+    ></script>
+  </head>
+
+  <body>
+    <canvas id="live-bg"></canvas>
+    <video
+      id="live-bg-video"
+      loop
+      muted
+      playsinline
+      src="backgrounds/cat-in-the-swamp-moewalls-com.mp4"
+    ></video>
+    <div id="topbar" class="glass">
+      <div class="topbar-left">
+        <i
+          class="ph-fill ph-hexagon os-logo"
+          onclick="toggleOverlay('logo-overlay')"
+          style="cursor: pointer"
+        ></i>
+      </div>
+
+      <div class="window-title-display">
+        <!-- Dynamic Title handled by JS could go here -->
+      </div>
+
+      <div
+        class="topbar-right"
+        onclick="toggleOverlay('status-overlay')"
+        style="cursor: pointer"
+      >
+        <div class="status-module">
+          <i class="ph ph-cpu"></i>
+          <span id="cpu-usage">12%</span>
+        </div>
+        <div class="status-module">
+          <i class="ph ph-wifi-high"></i>
+        </div>
+        <div class="status-module">
+          <i class="ph ph-battery-full"></i>
+          <span>100%</span>
+        </div>
+        <div class="status-module clock-module">
+          <span id="clock">00:00 AM</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="desktop"></div>
+
+    <div id="dock-container">
+      <div id="dock" class="glass">
+        <div class="dock-item" onclick="openApp('terminal')">
+          <i class="ph ph-terminal-window"></i>
+          <span class="tooltip">Terminal</span>
+        </div>
+        <div class="dock-item" onclick="openApp('browser')">
+          <i class="ph ph-globe"></i>
+          <span class="tooltip">Browser</span>
+        </div>
+        <div class="dock-item" onclick="openApp('files')">
+          <i class="ph ph-folder-open"></i>
+          <span class="tooltip">Files</span>
+        </div>
+        <div class="dock-item" onclick="openApp('Notepad')">
+          <i class="ph ph-note-pencil"></i>
+          <span class="tooltip">Notepad</span>
+        </div>
+        <div class="dock-item" onclick="openApp('settings')">
+          <i class="ph ph-gear"></i>
+          <span class="tooltip">Settings</span>
+        </div>
+        <div class="dock-item" onclick="openApp('drawing')">
+          <i class="ph ph-paint-brush"></i>
+          <span class="tooltip">Drawing</span>
+        </div>
+        <div class="dock-item" onclick="openApp('photoviewer')">
+          <i class="ph ph-image"></i>
+          <span class="tooltip">Photos</span>
+        </div>
+        <div class="dock-item" onclick="openApp('musicplayer')">
+          <i class="ph ph-music-notes"></i>
+          <span class="tooltip">Music</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="quickfind-overlay">
+      <div class="quickfind-box">
+        <i class="ph ph-magnifying-glass quickfind-icon"></i>
+        <input
+          type="text"
+          class="quickfind-input"
+          id="quickfind-input"
+          placeholder="Quick Find..."
+          spellcheck="false"
+          autocomplete="off"
+        />
+        <div id="quickfind-suggestions" class="quickfind-suggestions"></div>
+      </div>
+    </div>
+
+    <!-- Snap Assist Bar -->
+    <div id="snap-assist-bar">
+      <!-- Layout 1: Halves -->
+      <div class="snap-layout-group">
+        <div
+          class="snap-zone half-left"
+          data-snap="left"
+          data-tooltip="Left Half"
+        ></div>
+        <div
+          class="snap-zone half-right"
+          data-snap="right"
+          data-tooltip="Right Half"
+        ></div>
+      </div>
+      <!-- Layout 2: Quarters -->
+      <div class="snap-layout-group is-grid">
+        <div
+          class="snap-zone quarter-tl"
+          data-snap="tl"
+          data-tooltip="Top Left"
+        ></div>
+        <div
+          class="snap-zone quarter-tr"
+          data-snap="tr"
+          data-tooltip="Top Right"
+        ></div>
+        <div
+          class="snap-zone quarter-bl"
+          data-snap="bl"
+          data-tooltip="Bottom Left"
+        ></div>
+        <div
+          class="snap-zone quarter-br"
+          data-snap="br"
+          data-tooltip="Bottom Right"
+        ></div>
+      </div>
+      <!-- Maximize -->
+      <div class="snap-layout-group maximize-only">
+        <div
+          class="snap-zone maximize-full"
+          data-snap="maximize"
+          data-tooltip="Maximize"
+        ></div>
+      </div>
+    </div>
+
+    <div id="context-menu" class="context-menu"></div>
+
+    <div id="os-modal-overlay" class="os-modal-overlay">
+      <div class="os-modal">
+        <div id="os-modal-title" class="os-modal-title">Alert</div>
+        <div id="os-modal-message" class="os-modal-message"></div>
+        <input
+          type="text"
+          id="os-modal-input"
+          class="os-modal-input"
+          style="display: none"
+        />
+        <div class="os-modal-actions">
+          <button id="os-modal-cancel" class="Notepad-btn">Cancel</button>
+          <button id="os-modal-ok" class="Notepad-btn primary">OK</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="toast-container"></div>
+
+    <div id="logo-overlay" class="topbar-overlay logo-overlay glass">
+      <div class="overlay-section">
+        <div style="text-align: center; margin-bottom: 15px">
+          <i
+            class="ph-fill ph-hexagon"
+            style="font-size: 48px; color: var(--accent)"
+          ></i>
+          <h3 style="margin: 8px 0 2px 0">RobbieOS</h3>
+          <div style="opacity: 0.6; font-size: 11px">Version 2.0</div>
+        </div>
+        <div class="info-grid">
+          <span class="label">System:</span> <span>RobbieOS NextGen</span>
+          <span class="label">Memory:</span> <span>16 GB</span>
+          <span class="label">Storage:</span>
+          <span id="overlay-storage">Loading...</span>
+        </div>
+      </div>
+      <div class="overlay-section">
+        <div
+          class="overlay-item"
+          onclick="
+            openApp('settings');
+            hideOverlays();
+          "
+        >
+          <i class="ph ph-gear"></i> System Settings
+        </div>
+      </div>
+    </div>
+
+    <div id="status-overlay" class="topbar-overlay status-overlay glass">
+      <div class="overlay-section">
+        <div class="overlay-title">System Status</div>
+        <div class="info-grid">
+          <span class="label">CPU:</span> <span id="overlay-cpu">12%</span>
+          <span class="label">RAM Usage:</span> <span>42%</span>
+          <span class="label">Network:</span> <span>DefaultNetwork</span>
+          <span class="label">Battery:</span> <span>100% (Plugged In)</span>
+        </div>
+      </div>
+      <div class="overlay-section">
+        <div class="overlay-title">Calendar</div>
+        <div id="overlay-date" style="font-size: 13px; font-weight: 600"></div>
+        <div
+          id="overlay-long-date"
+          style="font-size: 11px; opacity: 0.6; margin-top: 4px"
+        ></div>
+      </div>
+    </div>
+
+    <!-- File Picker Dialog -->
+    <div id="file-picker-overlay" class="file-picker-overlay">
+      <div class="file-picker-dialog">
+        <div class="file-picker-header">
+          <div class="file-picker-title">Select Folder</div>
+          <button class="file-picker-close" onclick="closeFilePickerDialog()">
+            <i class="ph ph-x"></i>
+          </button>
+        </div>
+        <div class="file-picker-content">
+          <div class="file-picker-sidebar" id="file-picker-sidebar">
+            <!-- Sidebar items will be injected here -->
+          </div>
+          <div class="file-picker-main">
+            <div class="file-picker-toolbar">
+              <div class="browser-nav">
+                <div class="browser-nav-btn" onclick="filePickerGoBack()">
+                  <i class="ph ph-caret-left"></i>
+                </div>
+              </div>
+              <input
+                type="text"
+                class="path-input"
+                id="file-picker-path"
+                value="/"
+                readonly
+              />
+            </div>
+            <div class="file-picker-grid" id="file-picker-grid">
+              <!-- Folders will be injected here -->
+            </div>
+          </div>
+        </div>
+        <div class="file-picker-actions">
+          <button class="Notepad-btn" onclick="closeFilePickerDialog()">
+            Cancel
+          </button>
+          <button
+            class="Notepad-btn primary"
+            id="file-picker-select-btn"
+            onclick="selectFilePickerFolder()"
+          >
+            Select Folder
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
