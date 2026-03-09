@@ -757,8 +757,8 @@ const appData = {
   },
   browser: {
     title: "Browser",
-    width: "1000px",
-    height: "700px",
+    width: "800px",
+    height: "600px",
     type: "html",
     content: `
             <div class="browser-container">
@@ -2543,10 +2543,18 @@ function openApp(appId) {
   win.style.width = data.width;
   win.style.height = data.height;
 
-  // Randomize position
+  // Randomize position and ensure it stays below topbar (approx 45px high)
   const randomOffset = Math.floor(Math.random() * 40) - 20;
-  win.style.top = `calc(50% - ${parseInt(data.height) / 2}px + ${randomOffset}px)`;
-  win.style.left = `calc(50% - ${parseInt(data.width) / 2}px + ${randomOffset}px)`;
+
+  const w = parseInt(data.width) || 600;
+  const h = parseInt(data.height) || 400;
+
+  const minTop = 45;
+  const topPx = Math.max(minTop, window.innerHeight / 2 - h / 2 + randomOffset);
+  const leftPx = Math.max(0, window.innerWidth / 2 - w / 2 + randomOffset);
+
+  win.style.top = topPx + "px";
+  win.style.left = leftPx + "px";
   win.style.zIndex = ++zIndexCounter;
 
   win.innerHTML = `
@@ -2743,7 +2751,7 @@ function openApp(appId) {
 
       win.style.left = `${initialLeft + dx}px`;
       let top = initialTop + dy;
-      if (top < 0) top = 0;
+      if (top < 40) top = 40; // 38px topbar + 2px buffer
       win.style.top = `${top}px`;
     }
   });
@@ -2760,40 +2768,40 @@ function openApp(appId) {
 
         switch (snapType) {
           case "left":
-            win.style.top = "10px";
+            win.style.top = "45px";
             win.style.left = "10px";
             win.style.width = "calc(50% - 15px)";
-            win.style.height = "calc(100% - 20px)";
+            win.style.height = "calc(100% - 55px)";
             break;
           case "right":
-            win.style.top = "10px";
+            win.style.top = "45px";
             win.style.left = "calc(50% + 5px)";
             win.style.width = "calc(50% - 15px)";
-            win.style.height = "calc(100% - 20px)";
+            win.style.height = "calc(100% - 55px)";
             break;
           case "tl":
-            win.style.top = "10px";
+            win.style.top = "45px";
             win.style.left = "10px";
             win.style.width = "calc(50% - 15px)";
-            win.style.height = "calc(50% - 15px)";
+            win.style.height = "calc(50% - 32px)";
             break;
           case "tr":
-            win.style.top = "10px";
+            win.style.top = "45px";
             win.style.left = "calc(50% + 5px)";
             win.style.width = "calc(50% - 15px)";
-            win.style.height = "calc(50% - 15px)";
+            win.style.height = "calc(50% - 32px)";
             break;
           case "bl":
-            win.style.top = "calc(50% + 5px)";
+            win.style.top = "calc(50% + 23px)";
             win.style.left = "10px";
             win.style.width = "calc(50% - 15px)";
-            win.style.height = "calc(50% - 15px)";
+            win.style.height = "calc(50% - 32px)";
             break;
           case "br":
-            win.style.top = "calc(50% + 5px)";
+            win.style.top = "calc(50% + 23px)";
             win.style.left = "calc(50% + 5px)";
             win.style.width = "calc(50% - 15px)";
-            win.style.height = "calc(50% - 15px)";
+            win.style.height = "calc(50% - 32px)";
             break;
           case "maximize":
             win.classList.add("maximized");
